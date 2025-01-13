@@ -56,9 +56,9 @@ resource "aws_route_table_association" "myPubRTAssoc" {
 
 # SG 생성
 resource "aws_security_group" "allow_http" {
-  name = "allow_http"
+  name        = "allow_http"
   description = "Allow HTTP inbound traffic and all outbound traffic"
-  vpc_id = aws_vpc.myVPC.id
+  vpc_id      = aws_vpc.myVPC.id
 
   tags = {
     Name = "allow_http"
@@ -68,16 +68,16 @@ resource "aws_security_group" "allow_http" {
 # SG Rule 생성
 resource "aws_vpc_security_group_ingress_rule" "allow_http" {
   security_group_id = aws_security_group.allow_http.id
-  cidr_ipv4 = "0.0.0.0/0"
-  from_port = 80
-  ip_protocol = "tcp"
-  to_port = 80
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic" {
   security_group_id = aws_security_group.allow_http.id
   cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1" 
+  ip_protocol       = "-1"
 }
 
 # EC2 생성
@@ -89,7 +89,7 @@ resource "aws_instance" "myEC2" {
   vpc_security_group_ids = [aws_security_group.allow_http.id]
 
   user_data_replace_on_change = true
-  user_data = <<-EOF
+  user_data                   = <<-EOF
     #!/bin/bash
     yum install -y httpd
     echo "Hello World" > /var/www/html/index.html
