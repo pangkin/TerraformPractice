@@ -129,7 +129,7 @@ resource "aws_instance" "my_dev_server" {
   vpc_security_group_ids = [aws_security_group.allow_all.id]
 
   user_data_replace_on_change = true
-  user_data = file("userdata.tpl")
+  user_data                   = file("userdata.tpl")
 
   depends_on = [aws_internet_gateway.my]
 
@@ -138,11 +138,11 @@ resource "aws_instance" "my_dev_server" {
   }
 
   provisioner "local-exec" {
-    command = templatefile("sshconfig.tpl", { 
-      hostname = self.public_ip,
+    command = templatefile("sshconfig.tpl", {
+      hostname     = self.public_ip,
       identityfile = var.identity_file,
-      username = "ubuntu"
-      })
-    interpreter = [ "/bin/bash", "-c" ]
+      username     = "ubuntu"
+    })
+    interpreter = ["/bin/bash", "-c"]
   }
 }

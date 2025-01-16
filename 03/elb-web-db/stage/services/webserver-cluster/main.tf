@@ -36,12 +36,12 @@ data "aws_subnets" "default" {
 
 # Security Group
 resource "aws_security_group" "my_asg" {
-  name        = "myasgSG"
+  name        = "myASGSG"
   description = "Allow 8080 port inbound traffic and all outbound traffic"
   vpc_id      = data.aws_vpc.default.id
 
   tags = {
-    Name = "myasgSG"
+    Name = "myASGSG"
   }
 }
 
@@ -69,7 +69,7 @@ resource "aws_vpc_security_group_egress_rule" "my_asg_allow_all" {
 
 # Launch Template
 resource "aws_launch_template" "my_web" {
-  name = "my_web"
+  name = "myWEB"
 
   image_id      = data.aws_ami.ubuntu2404.id
   instance_type = "t2.micro"
@@ -92,7 +92,7 @@ resource "aws_launch_template" "my_web" {
     resource_type = "instance"
 
     tags = {
-      Name = "my_web"
+      Name = "myWEB"
     }
   }
 }
@@ -128,27 +128,35 @@ data "aws_ami" "ubuntu2404" {
 }
 
 # Auto Scaling Group
-resource "aws_autoscaling_group" "bar" {
-  name = "foobar3-terraform-test"
+resource "aws_autoscaling_group" "my_web" {
+  name = "myALB"
 
-  vpc_zone_identifier = data.aws_subnets.default.ids
+  desired_capacity = 2
+  min_size         = 2
+  max_size         = 10
 
-  max_size = 5
-  min_size = 2
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+
+  force_delete = true
 
   target_group_arns = [aws_lb_target_group.my_web.arn]
   depends_on        = [aws_lb_target_group.my_web]
 
+  vpc_zone_identifier = data.aws_subnets.default.ids
+
   launch_template {
-    id = aws_launch_template.my_web.id
+    id      = aws_launch_template.my_web.id
+    version = aws_launch_template.my_web.latest_version
   }
 }
 
-# 2-2. ALB + TG
+# 2-2. TG + ALB
+
 # Security Group
 resource "aws_security_group" "my_alb" {
   name        = "myALBSG"
-  description = "Allow 8080 port inbound traffic and all outbound traffic"
+  description = "Allow web inbound traffic and all outbound traffic"
   vpc_id      = data.aws_vpc.default.id
 
   tags = {
@@ -172,8 +180,8 @@ resource "aws_vpc_security_group_egress_rule" "my_alb_allow_all" {
 
 # Target Group
 resource "aws_lb_target_group" "my_web" {
-  name     = "my-web-tg"
-  port     = 8080
+  name     = "myWebTG"
+  port     = var.server_port
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 }
@@ -187,7 +195,7 @@ resource "aws_lb" "my_web" {
   subnets            = data.aws_subnets.default.ids
 }
 
-# Listener
+# ALB Listener
 resource "aws_lb_listener" "my_web" {
   load_balancer_arn = aws_lb.my_web.arn
   port              = "80"
@@ -216,10 +224,11 @@ resource "aws_lb_listener" "my_web" {
   }
 }
 
-# Listener rule
+# ALB Listener rule
 resource "aws_lb_listener_rule" "my_web" {
   listener_arn = aws_lb_listener.my_web.arn
   priority     = 100
+
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.my_web.arn
