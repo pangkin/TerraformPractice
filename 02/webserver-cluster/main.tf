@@ -64,7 +64,7 @@ resource "aws_launch_template" "myASG_template" {
 
   image_id      = data.aws_ami.al2023.id
   instance_type = "t2.micro"
-  key_name = "mykeypair2"
+  key_name      = "mykeypair2"
 
   vpc_security_group_ids = [aws_security_group.myASG_sg.id]
 
