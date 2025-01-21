@@ -1,0 +1,3 @@
+db_username = "username"
+db_password = "password"
+key_name = "keypairname"
