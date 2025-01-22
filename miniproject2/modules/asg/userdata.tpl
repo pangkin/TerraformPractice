@@ -7,7 +7,7 @@ sudo systemctl enable --now httpd
 cat << \EOF > /var/www/html/index.php
 <?php
 // 데이터베이스 연결 설정
-$host = '$';
+$host = '${db_address}';
 $username = '${db_username}';
 $password = '${db_password}';
 $dbname = 'dinner_menu';
