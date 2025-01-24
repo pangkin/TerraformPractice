@@ -45,6 +45,7 @@ resource "aws_codebuild_project" "codebuild" {
     buildspec = templatefile("${path.module}/buildspec.yaml", {
       account_id     = var.account_id
       container_name = "${var.project_name}-container"
+      project_name = var.project_name
     })
   }
 }
