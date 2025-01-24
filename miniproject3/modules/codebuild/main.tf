@@ -42,7 +42,7 @@ resource "aws_codebuild_project" "codebuild" {
 
   source {
     type = "CODEPIPELINE"
-    buildspec = templatefile("buildspec.yaml", {
+    buildspec = templatefile("${path.module}/buildspec.yaml", {
       account_id     = var.account_id
       container_name = "${var.project_name}-container"
     })
